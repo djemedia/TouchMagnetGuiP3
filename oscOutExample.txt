@@ -1,0 +1,5 @@
+faderOut = new OscMessage("/luminous/fader1");
+    faderOutFloat = (float)map(setcolorMode, 0, 255, 0, 1);
+    faderOut.add(faderOutFloat);
+    oscP5.send(faderOut, myRemoteLocation);
+
