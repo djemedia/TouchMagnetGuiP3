@@ -768,7 +768,7 @@ void controlEvent(ControlEvent theEvent) {
 
   if (theEvent.isController()) {
 
-    if (theEvent.isFrom(cp5.getController("Oil Paint"))) {
+    if (theEvent.isFrom(cp5.getController("WaterColor"))) {
 
       oscMessageOut = new OscMessage("/luminous/sketch1");
       oscMessageOutFloat = (1.0);
@@ -791,7 +791,7 @@ void controlEvent(ControlEvent theEvent) {
       oscMessageOut.add(oscMessageOutFloat);
       oscP5.send(oscMessageOut, myRemoteLocation);
     }
-    if (theEvent.isFrom(cp5.getController("Watercolor"))) {
+    if (theEvent.isFrom(cp5.getController("Oil Paint"))) {
 
       oscMessageOut = new OscMessage("/luminous/sketch4");
       oscMessageOutFloat = (1.0);
