@@ -84,6 +84,7 @@ Toggle randomTouch;
 Toggle audioResponse;
 Toggle heatToggle;
 
+boolean audioEnable = false;
 boolean toggleValue = false;
 boolean toggle2d = false;
 boolean audioResponseLastState = false;
@@ -94,7 +95,9 @@ void setup() {
   noStroke();
 
   minim = new Minim(this);
-
+ if (audioEnable == true){
+   
+  
   // get a line in from Minim, default bit depth is 16
   in = minim.getLineIn(Minim.STEREO, 512);
 
@@ -115,6 +118,7 @@ void setup() {
   //textFont(createFont("Helvetica", 16));
   //textAlign(CENTER);
   in.close();
+  }
   oscP5 = new OscP5(this, 9000);
   myRemoteLocation = new NetAddress("255.255.255.255", 12000);
 
@@ -350,7 +354,7 @@ void setup() {
   );
 
   //buttons
-  cp5.addButton("Oil Paint")
+  cp5.addButton("WaterColor")
     .setValue(0)
       .setPosition(10, 400)
         .setSize(100, 19)
@@ -369,7 +373,7 @@ void setup() {
         .setValue(0)
           ;
 
-  cp5.addButton("Watercolor")
+  cp5.addButton("Oil Paint")
     .setPosition(10, 460)
       .setSize(100, 19)
         .setValue(0)
@@ -399,7 +403,7 @@ void setup() {
       .setSize(100, 19)
         .setValue(0)
           ;
-  cp5.addButton("Blue Flame")
+  cp5.addButton("Simple Colors")
     .setPosition(10, 560)
       .setSize(100, 19)
         .setValue(0)
@@ -414,9 +418,29 @@ void setup() {
       .setSize(100, 19)
         .setValue(0)
           ;
+          cp5.addButton("Heat 2")
+    .setPosition(120, 440)
+      .setSize(70, 19)
+        .setValue(0)
+          ;
+          cp5.addButton("Watercolor2")
+    .setPosition(120, 400)
+      .setSize(70, 19)
+        .setValue(0)
+          ;
+          cp5.addButton("Lava2")
+    .setPosition(120, 500)
+      .setSize(70, 19)
+        .setValue(0)
+          ;
+          cp5.addButton("Save")
+    .setPosition(10, 350)
+      .setSize(80, 19)
+        .setValue(0)
+          ;
   // create a toggle
   heatToggle = cp5.addToggle("-Heat")
-    .setPosition(120, 440)
+    .setPosition(120, 460)
       .setSize(50, 20)
         ;
   heatToggle.addCallback(new CallbackListener() {
@@ -441,8 +465,8 @@ void setup() {
   );
 
   randomTouch = cp5.addToggle("Random Touch")
-    .setPosition(170, 360)
-      .setSize(50, 20)
+    .setPosition(180, 370)
+      .setSize(50, 15)
         ;
   randomTouch.addCallback(new CallbackListener() {
     public void controlEvent(CallbackEvent theEvent) {
@@ -466,8 +490,8 @@ void setup() {
   );
 
   audioResponse = cp5.addToggle("Audio Response")
-    .setPosition(100, 360)
-      .setSize(50, 20)
+    .setPosition(180, 340)
+      .setSize(50, 15)
         ;
   audioResponse.addCallback(new CallbackListener() {
     public void controlEvent(CallbackEvent theEvent) {
@@ -809,7 +833,7 @@ void controlEvent(ControlEvent theEvent) {
       oscMessageOut.add(oscMessageOutFloat);
       oscP5.send(oscMessageOut, myRemoteLocation);
     }
-    if (theEvent.isFrom(cp5.getController("Blue Flame"))) {
+    if (theEvent.isFrom(cp5.getController("Simple Colors"))) {
 
       oscMessageOut = new OscMessage("/luminous/sketch10");
       oscMessageOutFloat = (1.0);
@@ -826,6 +850,34 @@ void controlEvent(ControlEvent theEvent) {
     if (theEvent.isFrom(cp5.getController("FlickerCandle"))) {
 
       oscMessageOut = new OscMessage("/luminous/sketch12");
+      oscMessageOutFloat = (1.0);
+      oscMessageOut.add(oscMessageOutFloat);
+      oscP5.send(oscMessageOut, myRemoteLocation);
+    }
+    if (theEvent.isFrom(cp5.getController("Heat 2"))) {
+
+      oscMessageOut = new OscMessage("/luminous/sketch20");
+      oscMessageOutFloat = (1.0);
+      oscMessageOut.add(oscMessageOutFloat);
+      oscP5.send(oscMessageOut, myRemoteLocation);
+    }
+    if (theEvent.isFrom(cp5.getController("Watercolor2"))) {
+
+      oscMessageOut = new OscMessage("/luminous/sketch14");
+      oscMessageOutFloat = (1.0);
+      oscMessageOut.add(oscMessageOutFloat);
+      oscP5.send(oscMessageOut, myRemoteLocation);
+    }
+    if (theEvent.isFrom(cp5.getController("Lava2"))) {
+
+      oscMessageOut = new OscMessage("/luminous/sketch16");
+      oscMessageOutFloat = (1.0);
+      oscMessageOut.add(oscMessageOutFloat);
+      oscP5.send(oscMessageOut, myRemoteLocation);
+    }
+    if (theEvent.isFrom(cp5.getController("Save"))) {
+
+      oscMessageOut = new OscMessage("/luminous/save");
       oscMessageOutFloat = (1.0);
       oscMessageOut.add(oscMessageOutFloat);
       oscP5.send(oscMessageOut, myRemoteLocation);
