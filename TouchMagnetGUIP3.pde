@@ -92,6 +92,7 @@ boolean toggleHeat = false;
 
 void setup() {
   size(300, 640);
+  background(0);
   noStroke();
 
   minim = new Minim(this);
