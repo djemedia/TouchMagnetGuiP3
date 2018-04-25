@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream; 
 import java.io.IOException; 
 
-public class TouchMagnetGUIP3 extends PApplet {
+public class TouchMagnetGuiP3 extends PApplet {
 
 
 
@@ -110,6 +110,7 @@ Toggle randomTouch;
 Toggle audioResponse;
 Toggle heatToggle;
 
+boolean audioEnable = false;
 boolean toggleValue = false;
 boolean toggle2d = false;
 boolean audioResponseLastState = false;
@@ -117,10 +118,13 @@ boolean toggleHeat = false;
 
 public void setup() {
   
+  background(0);
   noStroke();
 
   minim = new Minim(this);
-
+ if (audioEnable == true){
+   
+  
   // get a line in from Minim, default bit depth is 16
   in = minim.getLineIn(Minim.STEREO, 512);
 
@@ -141,6 +145,7 @@ public void setup() {
   //textFont(createFont("Helvetica", 16));
   //textAlign(CENTER);
   in.close();
+  }
   oscP5 = new OscP5(this, 9000);
   myRemoteLocation = new NetAddress("255.255.255.255", 12000);
 
@@ -376,7 +381,7 @@ public void setup() {
   );
 
   //buttons
-  cp5.addButton("Oil Paint")
+  cp5.addButton("WaterColor")
     .setValue(0)
       .setPosition(10, 400)
         .setSize(100, 19)
@@ -395,7 +400,7 @@ public void setup() {
         .setValue(0)
           ;
 
-  cp5.addButton("Watercolor")
+  cp5.addButton("Oil Paint")
     .setPosition(10, 460)
       .setSize(100, 19)
         .setValue(0)
@@ -425,7 +430,7 @@ public void setup() {
       .setSize(100, 19)
         .setValue(0)
           ;
-  cp5.addButton("Blue Flame")
+  cp5.addButton("Simple Colors")
     .setPosition(10, 560)
       .setSize(100, 19)
         .setValue(0)
@@ -440,9 +445,54 @@ public void setup() {
       .setSize(100, 19)
         .setValue(0)
           ;
+          cp5.addButton("Heat 2")
+    .setPosition(120, 440)
+      .setSize(70, 19)
+        .setValue(0)
+          ;
+          cp5.addButton("Watercolor2")
+    .setPosition(120, 400)
+      .setSize(70, 19)
+        .setValue(0)
+          ;
+          cp5.addButton("Lava2")
+    .setPosition(120, 500)
+      .setSize(70, 19)
+        .setValue(0)
+          ;
+            cp5.addButton("Oil Paint 2")
+    .setPosition(120, 600)
+      .setSize(70, 19)
+        .setValue(0)
+          ;
+          cp5.addButton("Flash and Trails 2")
+    .setPosition(120, 480)
+      .setSize(70, 19)
+        .setValue(0)
+          ;
+          cp5.addButton("Flash and Trails 3")
+    .setPosition(120, 560)
+      .setSize(70, 19)
+        .setValue(0)
+          ;
+          cp5.addButton("Clouds 2")
+    .setPosition(120, 420)
+      .setSize(70, 19)
+        .setValue(0)
+          ;
+          cp5.addButton("Clouds 3")
+    .setPosition(120, 520)
+      .setSize(70, 19)
+        .setValue(0)
+          ;
+          cp5.addButton("Save")
+    .setPosition(10, 350)
+      .setSize(80, 19)
+        .setValue(0)
+          ;
   // create a toggle
   heatToggle = cp5.addToggle("-Heat")
-    .setPosition(120, 440)
+    .setPosition(100, 350)
       .setSize(50, 20)
         ;
   heatToggle.addCallback(new CallbackListener() {
@@ -467,14 +517,14 @@ public void setup() {
   );
 
   randomTouch = cp5.addToggle("Random Touch")
-    .setPosition(170, 360)
-      .setSize(50, 20)
+    .setPosition(180, 370)
+      .setSize(50, 15)
         ;
   randomTouch.addCallback(new CallbackListener() {
     public void controlEvent(CallbackEvent theEvent) {
       switch(theEvent.getAction()) {
         case(ControlP5.ACTION_PRESS): 
-        oscMessageOut = new OscMessage("/luminous/effect4");
+           oscMessageOut = new OscMessage("/luminous/effect4");
         if (randomTouch.getState()) {
           oscMessageOutFloat = 1.0f;
         } else {
@@ -492,8 +542,8 @@ public void setup() {
   );
 
   audioResponse = cp5.addToggle("Audio Response")
-    .setPosition(100, 360)
-      .setSize(50, 20)
+    .setPosition(180, 340)
+      .setSize(50, 15)
         ;
   audioResponse.addCallback(new CallbackListener() {
     public void controlEvent(CallbackEvent theEvent) {
@@ -594,13 +644,13 @@ public void osc2dRandom() {
   if (randomTouch.getState()) {
     if ((millis() - randomWait) > 0) {
       if (randomState == false) {
-        randomWait = millis() + (int)random(125, 600);//duration of touches range
+        randomWait = millis() + (int)random(125, 2000);//duration of touches range
         randomState = true;
         randomX = random(0, 1);
         randomY = random(0, 1);
         //println("touch " + randomX + ", " + randomY);
       } else {
-        autoSpeedF = 20 * (int)autoSpeed.getValue();
+        autoSpeedF = (int)random(5, 100) * (int)autoSpeed.getValue();
         randomWait = millis() + autoSpeedF;
         //randomWait = millis() + (int)random(1600, 2400);//wait in between touches range
         randomState = false;
@@ -770,7 +820,7 @@ public void controlEvent(ControlEvent theEvent) {
 
   if (theEvent.isController()) {
 
-    if (theEvent.isFrom(cp5.getController("Oil Paint"))) {
+    if (theEvent.isFrom(cp5.getController("WaterColor"))) {
 
       oscMessageOut = new OscMessage("/luminous/sketch1");
       oscMessageOutFloat = (1.0f);
@@ -793,7 +843,7 @@ public void controlEvent(ControlEvent theEvent) {
       oscMessageOut.add(oscMessageOutFloat);
       oscP5.send(oscMessageOut, myRemoteLocation);
     }
-    if (theEvent.isFrom(cp5.getController("Watercolor"))) {
+    if (theEvent.isFrom(cp5.getController("Oil Paint"))) {
 
       oscMessageOut = new OscMessage("/luminous/sketch4");
       oscMessageOutFloat = (1.0f);
@@ -835,7 +885,7 @@ public void controlEvent(ControlEvent theEvent) {
       oscMessageOut.add(oscMessageOutFloat);
       oscP5.send(oscMessageOut, myRemoteLocation);
     }
-    if (theEvent.isFrom(cp5.getController("Blue Flame"))) {
+    if (theEvent.isFrom(cp5.getController("Simple Colors"))) {
 
       oscMessageOut = new OscMessage("/luminous/sketch10");
       oscMessageOutFloat = (1.0f);
@@ -852,6 +902,69 @@ public void controlEvent(ControlEvent theEvent) {
     if (theEvent.isFrom(cp5.getController("FlickerCandle"))) {
 
       oscMessageOut = new OscMessage("/luminous/sketch12");
+      oscMessageOutFloat = (1.0f);
+      oscMessageOut.add(oscMessageOutFloat);
+      oscP5.send(oscMessageOut, myRemoteLocation);
+    }
+    if (theEvent.isFrom(cp5.getController("Heat 2"))) {
+
+      oscMessageOut = new OscMessage("/luminous/sketch20");
+      oscMessageOutFloat = (1.0f);
+      oscMessageOut.add(oscMessageOutFloat);
+      oscP5.send(oscMessageOut, myRemoteLocation);
+    }
+    if (theEvent.isFrom(cp5.getController("Watercolor2"))) {
+
+      oscMessageOut = new OscMessage("/luminous/sketch14");
+      oscMessageOutFloat = (1.0f);
+      oscMessageOut.add(oscMessageOutFloat);
+      oscP5.send(oscMessageOut, myRemoteLocation);
+    }
+    if (theEvent.isFrom(cp5.getController("Lava2"))) {
+
+      oscMessageOut = new OscMessage("/luminous/sketch16");
+      oscMessageOutFloat = (1.0f);
+      oscMessageOut.add(oscMessageOutFloat);
+      oscP5.send(oscMessageOut, myRemoteLocation);
+    }
+        if (theEvent.isFrom(cp5.getController("Oil Paint 2"))) {
+
+      oscMessageOut = new OscMessage("/luminous/sketch13");
+      oscMessageOutFloat = (1.0f);
+      oscMessageOut.add(oscMessageOutFloat);
+      oscP5.send(oscMessageOut, myRemoteLocation);
+    }
+    if (theEvent.isFrom(cp5.getController("Flash and Trails 2"))) {
+
+      oscMessageOut = new OscMessage("/luminous/sketch15");
+      oscMessageOutFloat = (1.0f);
+      oscMessageOut.add(oscMessageOutFloat);
+      oscP5.send(oscMessageOut, myRemoteLocation);
+    }
+    if (theEvent.isFrom(cp5.getController("Flash and Trails 3"))) {
+
+      oscMessageOut = new OscMessage("/luminous/sketch17");
+      oscMessageOutFloat = (1.0f);
+      oscMessageOut.add(oscMessageOutFloat);
+      oscP5.send(oscMessageOut, myRemoteLocation);
+    }
+    if (theEvent.isFrom(cp5.getController("Clouds 2"))) {
+
+      oscMessageOut = new OscMessage("/luminous/sketch18");
+      oscMessageOutFloat = (1.0f);
+      oscMessageOut.add(oscMessageOutFloat);
+      oscP5.send(oscMessageOut, myRemoteLocation);
+    }
+    if (theEvent.isFrom(cp5.getController("Clouds 3"))) {
+
+      oscMessageOut = new OscMessage("/luminous/sketch19");
+      oscMessageOutFloat = (1.0f);
+      oscMessageOut.add(oscMessageOutFloat);
+      oscP5.send(oscMessageOut, myRemoteLocation);
+    }
+    if (theEvent.isFrom(cp5.getController("Save"))) {
+
+      oscMessageOut = new OscMessage("/luminous/save");
       oscMessageOutFloat = (1.0f);
       oscMessageOut.add(oscMessageOutFloat);
       oscP5.send(oscMessageOut, myRemoteLocation);
@@ -970,7 +1083,7 @@ public void oscDimmer10(float faderIn) {
 */
   public void settings() {  size(300, 640); }
   static public void main(String[] passedArgs) {
-    String[] appletArgs = new String[] { "TouchMagnetGUIP3" };
+    String[] appletArgs = new String[] { "TouchMagnetGuiP3" };
     if (passedArgs != null) {
       PApplet.main(concat(appletArgs, passedArgs));
     } else {

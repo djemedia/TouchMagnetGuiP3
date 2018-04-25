@@ -1,3 +1,9 @@
+/////////////////////////////////////////////////////////
+////////////  TouchMagnet GUI ///////////////////////////
+////////////////////////////////////////////////////////
+//written by dustin edwards and dan cote 2014
+///////////////////////////////////////////////////////
+
 import ddf.minim.*;
 import ddf.minim.analysis.*;
 
@@ -95,6 +101,8 @@ void setup() {
   background(0);
   noStroke();
 
+   ////////////////  MINIM /////////////
+
   minim = new Minim(this);
  if (audioEnable == true){
    
@@ -120,6 +128,11 @@ void setup() {
   //textAlign(CENTER);
   in.close();
   }
+  
+  ////////////////////////////////////////////
+  //////////////   osc  ///////////////////////
+  ///////////////////////////////////////////////
+  
   oscP5 = new OscP5(this, 9000);
   myRemoteLocation = new NetAddress("255.255.255.255", 12000);
 
@@ -155,6 +168,8 @@ void setup() {
   oscP5.plug(this, "oscDimmer8", "/luminous/dimmer8");
   oscP5.plug(this, "oscDimmer9", "/luminous/dimmer9");
   oscP5.plug(this, "oscDimmer10", "/luminous/dimmer10");
+
+/////////////////   sLIDERS /////////////////////
 
   cp5 = new ControlP5(this);
 
@@ -226,8 +241,11 @@ void setup() {
           .setValue(205)
             ;
 
+
   s.setMaxX(1);
   s.setMaxY(1);
+
+  //////////////////////////////////////////////////////////CALLBACKS
   s.addCallback(new CallbackListener() {
     public void controlEvent(CallbackEvent theEvent) {
       switch(theEvent.getAction()) {
@@ -354,7 +372,7 @@ void setup() {
   }
   );
 
-  //buttons
+  ///////////////////////////////   buttons
   cp5.addButton("WaterColor")
     .setValue(0)
       .setPosition(10, 400)
@@ -434,14 +452,39 @@ void setup() {
       .setSize(70, 19)
         .setValue(0)
           ;
+            cp5.addButton("Oil Paint 2")
+    .setPosition(120, 600)
+      .setSize(70, 19)
+        .setValue(0)
+          ;
+          cp5.addButton("Flash and Trails 2")
+    .setPosition(120, 480)
+      .setSize(70, 19)
+        .setValue(0)
+          ;
+          cp5.addButton("Flash and Trails 3")
+    .setPosition(120, 560)
+      .setSize(70, 19)
+        .setValue(0)
+          ;
+          cp5.addButton("Clouds 2")
+    .setPosition(120, 420)
+      .setSize(70, 19)
+        .setValue(0)
+          ;
+          cp5.addButton("Clouds 3")
+    .setPosition(120, 520)
+      .setSize(70, 19)
+        .setValue(0)
+          ;
           cp5.addButton("Save")
     .setPosition(10, 350)
       .setSize(80, 19)
         .setValue(0)
           ;
-  // create a toggle
+// create a toggle button
   heatToggle = cp5.addToggle("-Heat")
-    .setPosition(120, 460)
+    .setPosition(100, 350)
       .setSize(50, 20)
         ;
   heatToggle.addCallback(new CallbackListener() {
@@ -464,7 +507,7 @@ void setup() {
     }
   }
   );
-
+/////////////////////////////////////////////////////////////RANDOM TOUCH
   randomTouch = cp5.addToggle("Random Touch")
     .setPosition(180, 370)
       .setSize(50, 15)
@@ -473,7 +516,7 @@ void setup() {
     public void controlEvent(CallbackEvent theEvent) {
       switch(theEvent.getAction()) {
         case(ControlP5.ACTION_PRESS): 
-        oscMessageOut = new OscMessage("/luminous/effect4");
+           oscMessageOut = new OscMessage("/luminous/effect4");
         if (randomTouch.getState()) {
           oscMessageOutFloat = 1.0;
         } else {
@@ -489,7 +532,7 @@ void setup() {
     }
   }
   );
-
+//////////////////////////////////////////////////////////////////////AUDIO RESPONSE TOGGLE
   audioResponse = cp5.addToggle("Audio Response")
     .setPosition(180, 340)
       .setSize(50, 15)
@@ -515,7 +558,7 @@ void setup() {
   }
   );
 /*
-  // create a DropdownList
+ //////////////////////////////////////////////////////////// // create a DropdownList
   d1 = cp5.addDropdownList("myList-d1")
     .setPosition(20, 20)
       ;
@@ -588,18 +631,17 @@ void osc2d() {
     oscP5.send(oscMessageOut, myRemoteLocation);
   }
 }
-
 void osc2dRandom() {
   if (randomTouch.getState()) {
     if ((millis() - randomWait) > 0) {
       if (randomState == false) {
-        randomWait = millis() + (int)random(125, 600);//duration of touches range
+        randomWait = millis() + (int)random(125, 2000);//duration of touches range
         randomState = true;
         randomX = random(0, 1);
         randomY = random(0, 1);
         //println("touch " + randomX + ", " + randomY);
       } else {
-        autoSpeedF = 20 * (int)autoSpeed.getValue();
+        autoSpeedF = (int)random(5, 100) * (int)autoSpeed.getValue();
         randomWait = millis() + autoSpeedF;
         //randomWait = millis() + (int)random(1600, 2400);//wait in between touches range
         randomState = false;
@@ -626,10 +668,11 @@ void osc2dRandom() {
     oscP5.send(oscMessageOut, myRemoteLocation);
   }
 }
-
+//audio trigger
 void audioTrigger() {
   if (audioResponse.getState()) {
-    if (beat.isSnare()) {
+    //beat.detect(minim.in);
+    /* if (beat.isSnare()) {
       oscMessageOut = new OscMessage("/luminous/effect1");
       oscMessageOutFloat = (1.0);
       oscMessageOut.add(oscMessageOutFloat);
@@ -640,15 +683,15 @@ void audioTrigger() {
       oscMessageOut.add(oscMessageOutFloat);
       oscP5.send(oscMessageOut, myRemoteLocation);
 
-
-
       //fill(255, 0, 0);
       //noStroke();
       //rect(160, 520, 25, 10);
     }
-    if (beat.isKick()) {
-      oscMessageOut = new OscMessage("/luminous/xy");
-    
+    */
+    if (beat.isOnset()) {
+    //if (beat.isKick()) {
+      
+    oscMessageOut = new OscMessage("/luminous/xy");
     oscMessageOutFloat = s.getArrayValue()[0];
     oscMessageOut.add(oscMessageOutFloat);
     oscMessageOutFloat = s.getArrayValue()[1];
@@ -687,7 +730,7 @@ void audioTrigger() {
     }
   }
 }
-
+////////////////////////////////////////////////////////////////////OSC send
 void oscSend() {
 
   if (toggleHue) {
@@ -872,6 +915,41 @@ void controlEvent(ControlEvent theEvent) {
     if (theEvent.isFrom(cp5.getController("Lava2"))) {
 
       oscMessageOut = new OscMessage("/luminous/sketch16");
+      oscMessageOutFloat = (1.0);
+      oscMessageOut.add(oscMessageOutFloat);
+      oscP5.send(oscMessageOut, myRemoteLocation);
+    }
+        if (theEvent.isFrom(cp5.getController("Oil Paint 2"))) {
+
+      oscMessageOut = new OscMessage("/luminous/sketch13");
+      oscMessageOutFloat = (1.0);
+      oscMessageOut.add(oscMessageOutFloat);
+      oscP5.send(oscMessageOut, myRemoteLocation);
+    }
+    if (theEvent.isFrom(cp5.getController("Flash and Trails 2"))) {
+
+      oscMessageOut = new OscMessage("/luminous/sketch15");
+      oscMessageOutFloat = (1.0);
+      oscMessageOut.add(oscMessageOutFloat);
+      oscP5.send(oscMessageOut, myRemoteLocation);
+    }
+    if (theEvent.isFrom(cp5.getController("Flash and Trails 3"))) {
+
+      oscMessageOut = new OscMessage("/luminous/sketch17");
+      oscMessageOutFloat = (1.0);
+      oscMessageOut.add(oscMessageOutFloat);
+      oscP5.send(oscMessageOut, myRemoteLocation);
+    }
+    if (theEvent.isFrom(cp5.getController("Clouds 2"))) {
+
+      oscMessageOut = new OscMessage("/luminous/sketch18");
+      oscMessageOutFloat = (1.0);
+      oscMessageOut.add(oscMessageOutFloat);
+      oscP5.send(oscMessageOut, myRemoteLocation);
+    }
+    if (theEvent.isFrom(cp5.getController("Clouds 3"))) {
+
+      oscMessageOut = new OscMessage("/luminous/sketch19");
       oscMessageOutFloat = (1.0);
       oscMessageOut.add(oscMessageOutFloat);
       oscP5.send(oscMessageOut, myRemoteLocation);
