@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////
-////////////  TouchMagnet GUI ///////////////////////////
+////////////  TouchMagnet  ///////////////////////////
 ////////////////////////////////////////////////////////
+//////////   OSC controller ///////////////////////
+///////////////////////////////////////////////////
 //written by dustin edwards and dan cote 2014
 ///////////////////////////////////////////////////////
 
@@ -105,27 +107,13 @@ void setup() {
 
   minim = new Minim(this);
  if (audioEnable == true){
-   
-  
   // get a line in from Minim, default bit depth is 16
   in = minim.getLineIn(Minim.STEREO, 512);
-
-  // a beat detection object that is FREQ_ENERGY mode that 
-  // expects buffers the length of song's buffer size
-  // and samples captured at songs's sample rate
   beat = new BeatDetect(in.bufferSize(), in.sampleRate());
-  // set the sensitivity to 300 milliseconds
-  // After a beat has been detected, the algorithm will wait for 300 milliseconds 
-  // before allowing another beat to be reported. You can use this to dampen the 
-  // algorithm if it is giving too many false-positives. The default value is 10, 
-  // which is essentially no damping. If you try to set the sensitivity to a negative value, 
-  // an error will be reported and it will be set to 10 instead. 
-  beat.setSensitivity(40);  
+    beat.setSensitivity(40);  
   //kickSize = snareSize = hatSize = 16;
   // make a new beat listener, so that we won't miss any buffers for the analysis
-  bl = new BeatListener(beat, in);  
-  //textFont(createFont("Helvetica", 16));
-  //textAlign(CENTER);
+  bl = new BeatListener(beat, in); 
   in.close();
   }
   
