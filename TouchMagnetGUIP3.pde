@@ -15,7 +15,7 @@ ControlP5 cp5;
 import javax.swing.JColorChooser;
 import java.awt.Color; 
 
-
+import processing.net*;
 import processing.core.*;
 import java.util.*;
 
@@ -35,6 +35,8 @@ BeatListener bl;
 float kickSize, snareSize, hatSize;
 
 AudioInput in;
+
+Client = myClient;
 
 int canvasW = 360;
 int canvasH = 640;
@@ -93,6 +95,7 @@ Toggle audioResponse;
 Toggle heatToggle;
 
 boolean audioEnable = false;
+boolean motionEnable = false;
 boolean toggleValue = false;
 boolean toggle2d = false;
 boolean audioResponseLastState = false;
@@ -111,11 +114,18 @@ void setup() {
   in = minim.getLineIn(Minim.STEREO, 512);
   beat = new BeatDetect(in.bufferSize(), in.sampleRate());
     beat.setSensitivity(40);  
-  //kickSize = snareSize = hatSize = 16;
+  kickSize = snareSize = hatSize = 16;
   // make a new beat listener, so that we won't miss any buffers for the analysis
   bl = new BeatListener(beat, in); 
   in.close();
   }
+  
+  ////////////////////////motion sensor/////////////////
+  if (motionEnable == true){
+    //Client = myClient
+    myClient = new Client(this, "127.0.0.1", 5211);
+  }
+  
   
   ////////////////////////////////////////////
   //////////////   osc  ///////////////////////
@@ -596,6 +606,7 @@ void draw() {
   osc2d();
   osc2dRandom();
   audioTrigger();
+  motionTrigger();
 
   if ((millis() - faderWait) > 50) {
     faderWait = millis();  
@@ -717,6 +728,22 @@ void audioTrigger() {
       audioResponseLastState = false;
     }
   }
+}
+//////////////////motion trigger//////////////////////////////////
+void motionTrigger() {
+  if (motionEnable == true){
+    int sensorIn;
+    sensorIn = motionClient.read();
+    float[] motionTouch = {sensorIn, sensorIn};
+    s.setArrayValue(motionTouch);
+    oscMessageOut = new OscMessage("/luminous/xy");
+    oscMessageOutFloat = s.getArrayValue()[0];
+    oscMessageOut.add(oscMessageOutFloat);
+    //oscMessageOutFloat = s.getArrayValue()[1];
+    //oscMessageOut.add(oscMessageOutFloat);
+    oscP5.send(oscMessageOut, myRemoteLocation);
+  }
+    
 }
 ////////////////////////////////////////////////////////////////////OSC send
 void oscSend() {
