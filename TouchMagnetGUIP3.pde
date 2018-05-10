@@ -15,7 +15,7 @@ ControlP5 cp5;
 import javax.swing.JColorChooser;
 import java.awt.Color; 
 
-import processing.net*;
+import processing.net.*;
 import processing.core.*;
 import java.util.*;
 
@@ -36,7 +36,8 @@ float kickSize, snareSize, hatSize;
 
 AudioInput in;
 
-Client = myClient;
+Client motionClient;
+String dist;
 
 int canvasW = 360;
 int canvasH = 640;
@@ -95,7 +96,7 @@ Toggle audioResponse;
 Toggle heatToggle;
 
 boolean audioEnable = false;
-boolean motionEnable = false;
+boolean motionEnable = true;
 boolean toggleValue = false;
 boolean toggle2d = false;
 boolean audioResponseLastState = false;
@@ -122,8 +123,7 @@ void setup() {
   
   ////////////////////////motion sensor/////////////////
   if (motionEnable == true){
-    //Client = myClient
-    myClient = new Client(this, "127.0.0.1", 5211);
+    motionClient = new Client(this, "127.0.0.1", 5207);
   }
   
   
@@ -530,7 +530,7 @@ void setup() {
     }
   }
   );
-//////////////////////////////////////////////////////////////////////AUDIO RESPONSE TOGGLE
+/////////////////////////////////////////////////////////////AUDIO RESPONSE TOGGLE
   audioResponse = cp5.addToggle("Audio Response")
     .setPosition(180, 340)
       .setSize(50, 15)
@@ -599,7 +599,8 @@ void controlEvent(ControlEvent theEvent) {
  }
  }
  */
-
+////////////////////////draw///////////////
+//////////////////////////////////////////
 
 void draw() {
 
@@ -729,19 +730,27 @@ void audioTrigger() {
     }
   }
 }
-//////////////////motion trigger//////////////////////////////////
+////////////////////////////////motion trigger//////////////////////////////////
 void motionTrigger() {
   if (motionEnable == true){
-    int sensorIn;
-    sensorIn = motionClient.read();
+    //int sensorIn;
+    byte data = 10;
+    //String dist;
+    if (motionClient.available()>0) {
+    dist = motionClient.readStringUntil(data);
+    println(dist);
+    float distF = Float.valueOf(dist);
+    //float distF = Float.valueOf(dist).floatValue();
+    float sensorIn = map(distF, 0, 100, 0, 1);
     float[] motionTouch = {sensorIn, sensorIn};
     s.setArrayValue(motionTouch);
     oscMessageOut = new OscMessage("/luminous/xy");
-    oscMessageOutFloat = s.getArrayValue()[0];
+    oscMessageOutFloat = sensorIn;
     oscMessageOut.add(oscMessageOutFloat);
-    //oscMessageOutFloat = s.getArrayValue()[1];
-    //oscMessageOut.add(oscMessageOutFloat);
+    oscMessageOutFloat = sensorIn;
+    oscMessageOut.add(oscMessageOutFloat);
     oscP5.send(oscMessageOut, myRemoteLocation);
+    }
   }
     
 }
