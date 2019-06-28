@@ -1,4 +1,4 @@
-/////////////////////////////////////////////////////////
+ /////////////////////////////////////////////////////////
 ////////////  TouchMagnet  ///////////////////////////
 ////////////////////////////////////////////////////////
 //////////   OSC controller ///////////////////////
@@ -17,10 +17,13 @@ import java.awt.Color;
 
 import processing.net.*;
 import processing.core.*;
+import processing.io.*;
 import java.util.*;
 
 import oscP5.*;
 import netP5.*;
+
+I2C i2c;
 
 OscP5 oscP5;
 NetAddress myRemoteLocation;
@@ -96,7 +99,8 @@ Toggle audioResponse;
 Toggle heatToggle;
 
 boolean audioEnable = false;
-boolean motionEnable = true;
+boolean motionEnable = false;
+boolean vlxEnable = true;
 boolean toggleValue = false;
 boolean toggle2d = false;
 boolean audioResponseLastState = false;
@@ -121,18 +125,20 @@ void setup() {
   in.close();
   }
   
-  ////////////////////////motion sensor/////////////////
+  ////////////////////////motion sensor client/////////////////
   if (motionEnable == true){
     motionClient = new Client(this, "127.0.0.1", 5207);
   }
   
-  
+  if (vlxEnable == true){
+    setupVlx();
+  }
   ////////////////////////////////////////////
   //////////////   osc  ///////////////////////
   ///////////////////////////////////////////////
   
   oscP5 = new OscP5(this, 9000);
-  myRemoteLocation = new NetAddress("255.255.255.255", 12000);
+  myRemoteLocation = new NetAddress("192.168.3.1", 12000);
 
   oscP5.plug(this, "oscEffect2", "/luminous/effect2");
   oscP5.plug(this, "oscEffect4", "/luminous/effect4");
@@ -608,6 +614,10 @@ void draw() {
   osc2dRandom();
   audioTrigger();
   motionTrigger();
+  
+  if (vlxEnable == true){
+    drawVlx();
+  }
 
   if ((millis() - faderWait) > 50) {
     faderWait = millis();  
@@ -688,7 +698,7 @@ void audioTrigger() {
       //rect(160, 520, 25, 10);
     }
     */
-    if (beat.isOnset()) {
+ 
     //if (beat.isKick()) {
       
     oscMessageOut = new OscMessage("/luminous/xy");
@@ -710,7 +720,7 @@ void audioTrigger() {
       //fill(255, 0, 0);
       //noStroke();
       //rect(160, 520, 25, 10);
-    }
+  //  }
   
   
   
@@ -738,7 +748,7 @@ void motionTrigger() {
     //String dist;
     if (motionClient.available()>0) {
     dist = motionClient.readStringUntil(data);
-    println(dist);
+    //println(dist);
     float distF = Float.valueOf(dist);
     //float distF = Float.valueOf(dist).floatValue();
     float sensorIn = map(distF, 0, 100, 0, 1);
