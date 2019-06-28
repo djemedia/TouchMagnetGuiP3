@@ -1,4 +1,4 @@
-/////////////////////////////////////////////////////////
+ /////////////////////////////////////////////////////////
 ////////////  TouchMagnet  ///////////////////////////
 ////////////////////////////////////////////////////////
 //////////   OSC controller ///////////////////////
@@ -15,12 +15,15 @@ ControlP5 cp5;
 import javax.swing.JColorChooser;
 import java.awt.Color; 
 
-import processing.net*;
+import processing.net.*;
 import processing.core.*;
+import processing.io.*;
 import java.util.*;
 
 import oscP5.*;
 import netP5.*;
+
+I2C i2c;
 
 OscP5 oscP5;
 NetAddress myRemoteLocation;
@@ -36,7 +39,8 @@ float kickSize, snareSize, hatSize;
 
 AudioInput in;
 
-Client = myClient;
+Client motionClient;
+String dist;
 
 int canvasW = 360;
 int canvasH = 640;
@@ -96,6 +100,7 @@ Toggle heatToggle;
 
 boolean audioEnable = false;
 boolean motionEnable = false;
+boolean vlxEnable = true;
 boolean toggleValue = false;
 boolean toggle2d = false;
 boolean audioResponseLastState = false;
@@ -120,19 +125,20 @@ void setup() {
   in.close();
   }
   
-  ////////////////////////motion sensor/////////////////
+  ////////////////////////motion sensor client/////////////////
   if (motionEnable == true){
-    //Client = myClient
-    myClient = new Client(this, "127.0.0.1", 5211);
+    motionClient = new Client(this, "127.0.0.1", 5207);
   }
   
-  
+  if (vlxEnable == true){
+    setupVlx();
+  }
   ////////////////////////////////////////////
   //////////////   osc  ///////////////////////
   ///////////////////////////////////////////////
   
   oscP5 = new OscP5(this, 9000);
-  myRemoteLocation = new NetAddress("255.255.255.255", 12000);
+  myRemoteLocation = new NetAddress("192.168.3.1", 12000);
 
   oscP5.plug(this, "oscEffect2", "/luminous/effect2");
   oscP5.plug(this, "oscEffect4", "/luminous/effect4");
@@ -530,7 +536,7 @@ void setup() {
     }
   }
   );
-//////////////////////////////////////////////////////////////////////AUDIO RESPONSE TOGGLE
+/////////////////////////////////////////////////////////////AUDIO RESPONSE TOGGLE
   audioResponse = cp5.addToggle("Audio Response")
     .setPosition(180, 340)
       .setSize(50, 15)
@@ -599,7 +605,8 @@ void controlEvent(ControlEvent theEvent) {
  }
  }
  */
-
+////////////////////////draw///////////////
+//////////////////////////////////////////
 
 void draw() {
 
@@ -607,6 +614,10 @@ void draw() {
   osc2dRandom();
   audioTrigger();
   motionTrigger();
+  
+  if (vlxEnable == true){
+    drawVlx();
+  }
 
   if ((millis() - faderWait) > 50) {
     faderWait = millis();  
@@ -687,7 +698,7 @@ void audioTrigger() {
       //rect(160, 520, 25, 10);
     }
     */
-    if (beat.isOnset()) {
+ 
     //if (beat.isKick()) {
       
     oscMessageOut = new OscMessage("/luminous/xy");
@@ -709,7 +720,7 @@ void audioTrigger() {
       //fill(255, 0, 0);
       //noStroke();
       //rect(160, 520, 25, 10);
-    }
+  //  }
   
   
   
@@ -729,19 +740,27 @@ void audioTrigger() {
     }
   }
 }
-//////////////////motion trigger//////////////////////////////////
+////////////////////////////////motion trigger//////////////////////////////////
 void motionTrigger() {
   if (motionEnable == true){
-    int sensorIn;
-    sensorIn = motionClient.read();
+    //int sensorIn;
+    byte data = 10;
+    //String dist;
+    if (motionClient.available()>0) {
+    dist = motionClient.readStringUntil(data);
+    //println(dist);
+    float distF = Float.valueOf(dist);
+    //float distF = Float.valueOf(dist).floatValue();
+    float sensorIn = map(distF, 0, 100, 0, 1);
     float[] motionTouch = {sensorIn, sensorIn};
     s.setArrayValue(motionTouch);
     oscMessageOut = new OscMessage("/luminous/xy");
-    oscMessageOutFloat = s.getArrayValue()[0];
+    oscMessageOutFloat = sensorIn;
     oscMessageOut.add(oscMessageOutFloat);
-    //oscMessageOutFloat = s.getArrayValue()[1];
-    //oscMessageOut.add(oscMessageOutFloat);
+    oscMessageOutFloat = sensorIn;
+    oscMessageOut.add(oscMessageOutFloat);
     oscP5.send(oscMessageOut, myRemoteLocation);
+    }
   }
     
 }
